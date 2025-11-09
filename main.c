@@ -134,7 +134,16 @@ char checkWinner() {
 }
 
 int main() {
-    char currentPlayer = PLAYER;
+    char currentPlayer;
+    //Choosing who is starting first
+    int p;
+    printf("Who is starting the game?\n");
+    printf("Player(1), AI(2)\n");
+    scanf("%d", &p);
+    if (p == 2) currentPlayer = AI;
+    else if (p == 1) currentPlayer = PLAYER;
+    else printf("Type 1 or 2");
+
 
     for (int turn = 0; turn < 9; turn++) {
         printBoard();
