@@ -15,6 +15,11 @@ char board[3][3] = {
     { ' ', ' ', ' ' },
     { ' ', ' ', ' ' }
 };
+char box[3][3] = {
+    {'1','2','3'},
+    {'4','5','6'},
+    {'7','8','9'}
+};
 
 int isMovesLeft(char b[3][3]) {
     for (int i = 0; i < 3; i++)
@@ -22,14 +27,28 @@ int isMovesLeft(char b[3][3]) {
             if (b[i][j] == EMPTY) return 1;
     return 0;
 }
+int checkBoxUsed(char b) {
+    if (b == EMPTY) return 0;
+    else return 1;
+}
 
 void printBoard() {
     printf("\n");
     for (int i = 0; i < 3; i++) {
-        printf(" %c | %c | %c \n", board[i][0], board[i][1], board[i][2]);
+        char b1 = (checkBoxUsed(board[i][0])) ? board[i][0] : box[i][0];
+        char b2 = (checkBoxUsed(board[i][1])) ? board[i][1] : box[i][1];
+        char b3 = (checkBoxUsed(board[i][2])) ? board[i][2] : box[i][2];
+        printf(" %c | %c | %c \n", b1, b2, b3);
         if (i < 2) printf("---+---+---\n");
     }
     printf("\n");
+}
+
+struct Move playerInput(int x) {
+    struct Move move;
+    move.row = (x - 1) / 3; // integer division
+    move.col = (x - 1) % 3; // modulo for column
+    return move;
 }
 
 // +10 if AI wins, -10 if PLAYER wins, 0 otherwise
@@ -116,25 +135,33 @@ char checkWinner() {
 
 int main() {
     char currentPlayer = PLAYER;
-    int row, col;
 
     for (int turn = 0; turn < 9; turn++) {
         printBoard();
 
         if (currentPlayer == PLAYER) {
-            printf("Enter row col (1-3 1-3): ");
-            if (scanf("%d %d", &row, &col) != 2) return 0;
-            row--; col--;
-            if (row < 0 || row > 2 || col < 0 || col > 2 || board[row][col] != EMPTY) {
+            int x;
+            printf("Enter your move: ");
+            scanf("%d", &x);
+            if (x<0 || x > 9) {
                 printf("Invalid move, try again.\n");
                 turn--;
                 continue;
             }
-            board[row][col] = PLAYER;
+            struct Move m = playerInput(x);
+
+            if (board[m.row][m.col] != EMPTY) {
+                printf("Spot already taken!! Try again.\n");
+                turn--;
+                continue;
+            }
+
+            board[m.row][m.col] = PLAYER;
         } else {
-            struct Move m = FindBestMove(board);
-            printf("Computer chooses: %d %d\n", m.row + 1, m.col + 1);
-            board[m.row][m.col] = AI;
+            struct Move n = FindBestMove(board);
+            int boxNumber = (n.row * 3) + n.col + 1;
+            printf("Computer chooses: %d\n", boxNumber);
+            board[n.row][n.col] = AI;
         }
 
         char w = checkWinner();
